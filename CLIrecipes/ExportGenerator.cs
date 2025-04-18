@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using Data_models;
 
 namespace CLIrecipes
@@ -11,7 +8,7 @@ namespace CLIrecipes
         public static void ExportToTextFile(List<Meal> meals)
         {
             Console.Write("\nEnter a file name to export (default: recipes.txt): ");
-            string fileName = Console.ReadLine()?.Trim();
+            string? fileName = Console.ReadLine()?.Trim();
 
             if (string.IsNullOrWhiteSpace(fileName))
                 fileName = "recipes.txt";

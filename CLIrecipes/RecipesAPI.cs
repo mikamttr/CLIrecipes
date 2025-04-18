@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Net.Http;
+//using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Data_models;
 
 namespace CLIrecipes
 {
-    public static class RecipeFetch
+    public static class RecipesAPI
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new();
 
-        public static async Task<List<Meal>> FetchRecipesAsync(string search)
+        public static async Task<List<Meal>?> FetchData(string search)
         {
             try
             {

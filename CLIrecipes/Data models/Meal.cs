@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Data_models
+﻿namespace Data_models
 {
     public class Meal
     {

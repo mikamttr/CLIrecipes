@@ -10,11 +10,11 @@ class Program
         while (true)
         {
             Console.Write("\n🔍 Search for recipes: ");
-            string search = Console.ReadLine()?.Trim();
+            string? search = Console.ReadLine()?.Trim();
 
             if (string.IsNullOrWhiteSpace(search)) continue;
 
-            var meals = await RecipeFetch.FetchRecipesAsync(search);
+            var meals = await RecipesAPI.FetchData(search);
 
             if (meals == null || meals.Count == 0)
             {
@@ -29,7 +29,7 @@ class Program
             Console.WriteLine("2. Export all results");
             Console.WriteLine("3. Go back to recipe search");
 
-            string actionChoice = Console.ReadLine()?.Trim();
+            string? actionChoice = Console.ReadLine()?.Trim();
 
             switch (actionChoice)
             {

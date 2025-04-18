@@ -1,13 +1,11 @@
-﻿using System;
-
-namespace CLIrecipes
+﻿namespace CLIrecipes
 {
     public static class Utilities
     {
         public static bool PromptYesNo(string message)
         {
             Console.Write($"{message} (yes/no): ");
-            string input = Console.ReadLine()?.Trim().ToLower();
+            string? input = Console.ReadLine()?.Trim().ToLower();
             return input == "yes" || input == "y";
         }
 

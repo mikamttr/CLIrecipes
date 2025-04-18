@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Data_models;
+﻿using Data_models;
 
 namespace CLIrecipes
 {
@@ -21,11 +18,11 @@ namespace CLIrecipes
             {
                 case 1:
                     Console.Write("Enter Category: ");
-                    string category = Console.ReadLine();
+                    string? category = Console.ReadLine();
                     return meals.Where(m => m.Category?.Contains(category, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
                 case 2:
                     Console.Write("Enter Origin (Area): ");
-                    string area = Console.ReadLine();
+                    string? area = Console.ReadLine();
                     return meals.Where(m => m.Area?.Contains(area, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
                 default:
                     return meals;
