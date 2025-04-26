@@ -1,9 +1,4 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Net.Http;
-//using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Data_models;
 
 namespace CLIrecipes
@@ -12,7 +7,7 @@ namespace CLIrecipes
     {
         private static readonly HttpClient client = new();
 
-        public static async Task<List<Meal>?> FetchData(string search)
+        public static async Task<List<Recipe>?> FetchData(string search)
         {
             try
             {
@@ -20,27 +15,44 @@ namespace CLIrecipes
                 string json = await client.GetStringAsync(url);
                 var data = JObject.Parse(json);
 
-                var meals = (from meal in data["meals"]
-                             select new Meal
-                             {
-                                 Title = (string)meal["strMeal"],
-                                 Category = (string)meal["strCategory"],
-                                 Area = (string)meal["strArea"],
-                                 Instructions = (string)meal["strInstructions"],
-                                 Youtube = (string)meal["strYoutube"],
-                                 Ingredients = Enumerable.Range(1, 20)
-                                     .Select(i => $"{meal[$"strMeasure{i}"]} {meal[$"strIngredient{i}"]}".Trim())
-                                     .Where(ing => !string.IsNullOrWhiteSpace(ing) && !ing.StartsWith(" "))
-                                     .ToList()
-                             }).ToList();
+                var meals = data["meals"];
+                if (meals == null) return null;
 
-                return meals;
+                var result = meals.Select(recipe => new Recipe
+                {
+                    Title = (string?)recipe["strMeal"],
+                    Category = (string?)recipe["strCategory"],
+                    Area = (string?)recipe["strArea"],
+                    Instructions = (string?)recipe["strInstructions"],
+                    Youtube = (string?)recipe["strYoutube"],
+                    Ingredients = ExtractIngredients(recipe)
+                }).ToList();
+
+                return result;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Utilities.ShowError($"Error fetching data: {ex.Message}");
+                Utilities.ShowError($"Error fetching data: {e.Message}");
                 return null;
             }
+        }
+
+        private static List<string> ExtractIngredients(JToken recipe)
+        {
+            return Enumerable.Range(1, 20)
+                .Select(i =>
+                {
+                    var ingredient = (string?)recipe[$"strIngredient{i}"];
+                    var measure = (string?)recipe[$"strMeasure{i}"];
+
+                    if (string.IsNullOrWhiteSpace(ingredient))
+                        return null;
+
+                    var combined = $"{measure?.Trim()} {ingredient.Trim()}".Trim();
+                    return string.IsNullOrWhiteSpace(combined) ? null : combined;
+                })
+                .Where(ing => !string.IsNullOrWhiteSpace(ing))
+                .ToList()!;
         }
     }
 }

@@ -6,72 +6,97 @@ class Program
     static async Task Main()
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.Write("\r\n\r\n██████╗ ███████╗ ██████╗██╗██████╗ ███████╗    ███████╗██╗███╗   ██╗██████╗ ███████╗██████╗ \r\n██╔══██╗██╔════╝██╔════╝██║██╔══██╗██╔════╝    ██╔════╝██║████╗  ██║██╔══██╗██╔════╝██╔══██╗\r\n██████╔╝█████╗  ██║     ██║██████╔╝█████╗      █████╗  ██║██╔██╗ ██║██║  ██║█████╗  ██████╔╝\r\n██╔══██╗██╔══╝  ██║     ██║██╔═══╝ ██╔══╝      ██╔══╝  ██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗\r\n██║  ██║███████╗╚██████╗██║██║     ███████╗    ██║     ██║██║ ╚████║██████╔╝███████╗██║  ██║\r\n╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝╚═╝     ╚══════╝    ╚═╝     ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝\r\n                                                                                            \r\n\r\n");
 
         while (true)
         {
-            Console.Write("\n🔍 Search for recipes: ");
+            Console.Write("\n🔎︎ Search for recipes: ");
             string? search = Console.ReadLine()?.Trim();
 
             if (string.IsNullOrWhiteSpace(search)) continue;
 
-            var meals = await RecipesAPI.FetchData(search);
+            var searchResults = await RecipesAPI.FetchData(search);
 
-            if (meals == null || meals.Count == 0)
+            if (searchResults == null || searchResults.Count == 0)
             {
                 Console.WriteLine($"No recipes found ...");
                 continue;
             }
 
-            DisplayMeals($"🔢 {meals.Count} recipe(s) found :", meals);
+            Utilities.Display($"🔢 {searchResults.Count} recipes found :", searchResults);
 
-            Console.WriteLine("\nWhat would you like to do?");
-            Console.WriteLine("1. Filter the search results");
-            Console.WriteLine("2. Export all results");
-            Console.WriteLine("3. Go back to recipe search");
+            Console.WriteLine("\nPress a key to continue...");
+            Console.ReadKey(true);
 
-            string? actionChoice = Console.ReadLine()?.Trim();
+            var menu = new Menu(
+                "What do you want to do ?", 
+                ["Filter search results", "Export all results", "Make a new search", "Quit application"]
+            );
 
-            switch (actionChoice)
+            switch (menu.Input())
             {
-                case "1":
-                    var filteredMeals = MealFilter.ApplyFilter(meals);
-                    DisplayMeals($"📑 Filtered recipe(s) : {filteredMeals.Count}", filteredMeals);
-
-                    if (Utilities.PromptYesNo("Do you want to export the filtered results?"))
-                    {
-                        ExportGenerator.ExportToTextFile(filteredMeals);
-                    }
+                case "Filter search results":
+                    var filtered = Filter(searchResults);
+                    Utilities.Display($"📑 Filtered recipes : {filtered.Count}", filtered);
+                    if (Utilities.Prompt("Do you want to export filtered search results?"))
+                        Export.ToTextFile(filtered);
                     break;
 
-                case "2":
-                    if (Utilities.PromptYesNo("Do you want to export the full search results?"))
-                    {
-                        ExportGenerator.ExportToTextFile(meals);
-                    }
+                case "Export all results":
+                    if (Utilities.Prompt("Do you want to export full search results?"))
+                        Export.ToTextFile(searchResults);
                     break;
 
-                case "3":
+                case "Quit application":
+                    Console.WriteLine("\nExiting application...");
+                    Environment.Exit(0);
                     break;
 
                 default:
-                    Utilities.ShowError("Invalid option");
+                    // Back to search for recipes
+                    Console.Clear();
                     break;
             }
         }
     }
 
-    static void DisplayMeals(string message, List<Meal> meals)
+    public static List<Recipe> Filter(List<Recipe> searchResults)
     {
-        Console.Clear();
-        Console.WriteLine($"\n{message}\n");
+        var filterMenu = new Menu(
+            "Filter search results by:", 
+            ["Category", "Origin", "No filter"]
+        );
 
-        foreach (var meal in meals)
+        switch (filterMenu.Input())
         {
-            Console.WriteLine($"🍽  {meal.Title}");
-            Console.WriteLine($"📂 Category : {meal.Category}");
-            Console.WriteLine($"🌍 Origin : {meal.Area}");
-            if (!string.IsNullOrWhiteSpace(meal.Youtube)) Console.WriteLine(meal.Youtube);
-            Console.WriteLine("\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n");
+            case "Category":
+                var categories = searchResults
+                    .Select(m => m.Category)
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToArray();
+
+                var categoryMenu = new Menu("📂 Choose recipe category:", categories);
+                string selectedCategory = categoryMenu.Input();
+
+                return [.. searchResults.Where(m => string.Equals(m.Category, selectedCategory, StringComparison.OrdinalIgnoreCase))];
+
+            case "Origin":
+                var origins = searchResults
+                    .Select(m => m.Area)
+                    .Where(a => !string.IsNullOrWhiteSpace(a))
+                    .Distinct()
+                    .OrderBy(a => a)
+                    .ToArray();
+
+                var originMenu = new Menu("🌍 Choose recipe origin:", origins);
+                string selectedOrigin = originMenu.Input();
+
+                return [.. searchResults.Where(m => string.Equals(m.Area, selectedOrigin, StringComparison.OrdinalIgnoreCase))];
+
+            default:
+                return searchResults;
         }
     }
 }

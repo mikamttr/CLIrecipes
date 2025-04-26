@@ -3,9 +3,11 @@ using Data_models;
 
 namespace CLIrecipes
 {
-    public static class ExportGenerator
+    public static class Export
     {
-        public static void ExportToTextFile(List<Meal> meals)
+        private static readonly string ExportDirectory = Path.Combine(Directory.GetCurrentDirectory(), "exports");
+
+        public static void ToTextFile(List<Recipe> meals)
         {
             Console.Write("\nEnter a file name to export (default: recipes.txt): ");
             string? fileName = Console.ReadLine()?.Trim();
@@ -14,6 +16,14 @@ namespace CLIrecipes
                 fileName = "recipes.txt";
             else if (!fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
                 fileName += ".txt";
+
+            if (!Directory.Exists(ExportDirectory))
+            {
+                Utilities.ShowError($"Export folder not found: {ExportDirectory}");
+                return;
+            }
+
+            string fullPath = Path.Combine(ExportDirectory, fileName);
 
             var sb = new StringBuilder();
 
@@ -24,7 +34,7 @@ namespace CLIrecipes
                 sb.AppendLine($"🌍 Origin: {meal.Area}");
                 sb.AppendLine($"Video: {meal.Youtube}");
                 sb.AppendLine("\n📋 Ingredients:\n");
-                foreach (var ing in meal.Ingredients)
+                foreach (var ing in meal.Ingredients!)
                 {
                     sb.AppendLine($"  - {ing}");
                 }
@@ -34,12 +44,12 @@ namespace CLIrecipes
 
             try
             {
-                File.WriteAllText(fileName, sb.ToString());
-                Utilities.ShowSuccess($"\nRecipes exported to: {Path.GetFullPath(fileName)}");
+                File.WriteAllText(fullPath, sb.ToString());
+                Utilities.ShowSuccess($"\nRecipes exported to: {Path.GetFullPath(fullPath)}");
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Utilities.ShowError($"Failed to export: {ex.Message}");
+                Utilities.ShowError($"Failed to export: {e.Message}");
             }
         }
     }
