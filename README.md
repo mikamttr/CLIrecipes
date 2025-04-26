@@ -24,7 +24,7 @@ A simple and interactive .NET 8 console application that lets you **search**, **
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/cli-recipe-finder.git
+   git clone https://github.com/mikamttr/CLIrecipes.git
    cd cli-recipe-finder
    ```
 
