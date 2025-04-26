@@ -20,26 +20,6 @@ A simple and interactive .NET 8 console application that lets you **search**, **
 
 ---
 
-## Getting Started
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/mikamttr/CLIrecipes.git
-   cd CLIrecipes
-   ```
-
-2. **Ensure the `Exports` folder exists:**
-   ```bash
-   mkdir Exports
-   ```
-
-3. **Run the app:**
-   ```bash
-   dotnet run
-   ```
-
----
-
 ## Project Structure
 
 ```
